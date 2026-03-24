@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tipografía · Semana 1 · Bloque C</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0d0d0d;
+  --paper: #f5f0e8;
+  --blue: #007ec6;
+  --blue-light: #e8f4fc;
+  --rule: #c8bfa8;
+  --red: #d4450c;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ── HEADER ── */
+.page-header { background: var(--ink); color: var(--paper); padding: 2.2rem 2.5rem 1.8rem; position: relative; overflow: hidden; }
+.page-header::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,.04) 59px,rgba(255,255,255,.04) 60px); pointer-events:none; }
+.header-kicker { font-family:var(--mono); font-size:.68rem; letter-spacing:.18em; text-transform:uppercase; color:var(--blue); margin-bottom:.5rem; }
+.header-title { font-family:var(--serif); font-size:clamp(1.6rem,3.5vw,2.8rem); font-weight:900; line-height:1.1; max-width:760px; }
+.header-title em { color:var(--blue); font-style:italic; }
+.header-sub { margin-top:.8rem; font-size:.85rem; color:rgba(245,240,232,.6); max-width:660px; line-height:1.6; }
+
+/* ── MAIN ── */
+main { flex:1; max-width:1100px; width:100%; margin:0 auto; padding:2rem 1.5rem; display:flex; flex-direction:column; gap:2rem; }
+.section-label { font-family:var(--mono); font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--blue); border-left:3px solid var(--blue); padding-left:.6rem; margin-bottom:1rem; }
+
+/* ── STUDENT CARD ── */
+.card { background:#fff; border:1px solid var(--rule); border-radius:4px; padding:1.6rem 2rem; }
+.card h2 { font-family:var(--serif); font-size:1.2rem; margin-bottom:1.1rem; font-weight:700; }
+.field-row { display:flex; gap:1.2rem; flex-wrap:wrap; }
+.field { flex:1; min-width:200px; display:flex; flex-direction:column; gap:.35rem; }
+.field label { font-size:.75rem; font-weight:500; letter-spacing:.05em; }
+.field input, .field textarea { border:1px solid var(--rule); border-radius:3px; padding:.55rem .85rem; font-family:var(--sans); font-size:.88rem; background:var(--paper); color:var(--ink); transition:border-color .2s,box-shadow .2s; outline:none; }
+.field input:focus, .field textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,126,198,.12); }
+.field textarea { resize:vertical; min-height:78px; }
+.field.error input, .field.error textarea { border-color:var(--red); box-shadow:0 0 0 2px rgba(212,69,12,.14); }
+.err-msg { font-size:.7rem; color:var(--red); margin-top:.2rem; }
+
+/* ══ STICKY LAYER BAR ══ */
+.layer-bar {
+  position: sticky; top: 0; z-index: 300;
+  background: var(--ink); border-bottom: 2px solid var(--blue);
+  padding: .6rem 1rem; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+}
+.layer-bar-label { font-family:var(--mono); font-size:.55rem; letter-spacing:.18em; text-transform:uppercase; color:rgba(245,240,232,.35); padding-right:.6rem; border-right:1px solid rgba(245,240,232,.1); margin-right:.1rem; white-space:nowrap; flex-shrink:0; }
+.layer-btn {
+  display:inline-flex; align-items:center; gap:.32rem;
+  font-family:var(--mono); font-size:.58rem; letter-spacing:.07em; text-transform:uppercase;
+  padding:.28rem .62rem; border-radius:3px; border:1.5px solid rgba(245,240,232,.18);
+  background:transparent; color:rgba(245,240,232,.8); cursor:pointer; transition:all .18s; white-space:nowrap; user-select:none;
+}
+.layer-btn .dot { width:7px; height:7px; border-radius:50%; background:var(--blue); flex-shrink:0; transition:background .18s; }
+.layer-btn:hover { border-color:rgba(245,240,232,.5); color:#fff; }
+.layer-btn.st-hidden { border-color:var(--red); color:rgba(245,240,232,.35); background:rgba(212,69,12,.1); }
+.layer-btn.st-hidden .dot { background:var(--red); }
+.layer-btn.st-blurred { border-color:rgba(0,126,198,.45); color:rgba(245,240,232,.4); background:rgba(0,126,198,.08); }
+.layer-btn.st-blurred .dot { background:rgba(0,126,198,.35); }
+.bar-actions { margin-left:auto; display:flex; gap:.3rem; flex-shrink:0; }
+.bar-btn { font-family:var(--mono); font-size:.55rem; letter-spacing:.1em; text-transform:uppercase; padding:.24rem .58rem; border-radius:3px; border:1px solid rgba(245,240,232,.13); background:transparent; color:rgba(245,240,232,.38); cursor:pointer; transition:all .18s; white-space:nowrap; }
+.bar-btn:hover { border-color:rgba(245,240,232,.38); color:rgba(245,240,232,.8); }
+
+/* ══ SUPERIMPOSED IMAGE STACK ══
+   All 5 images: 990×265 → ratio = 265/990 = 26.7676%
+   Each layer fills exactly the same space via position:absolute inset:0
+══ */
+.stack-outer { position:relative; }
+
+.img-stack {
+  position: relative;
+  width: 100%;
+  padding-top: 26.7676%;   /* exact 265/990 ratio */
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;         /* all layers clipped to same box */
+  border: 1px solid #222;
+  box-shadow: 0 4px 28px rgba(0,0,0,.3);
+}
+
+/* Every image layer sits at the exact same position */
+.img-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.img-layer img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;       /* fill = stretch to exact size, no crop */
+  display: block;
+  transition: opacity .3s, filter .35s;
+}
+
+/* States */
+.img-layer.st-hidden img   { opacity: 0; }
+.img-layer.st-hidden .hs   { opacity:0!important; pointer-events:none!important; }
+.img-layer.st-blurred img  { filter:blur(14px) brightness(.45); opacity:.7; }
+.img-layer.st-blurred .hs  { opacity:.15!important; pointer-events:none!important; }
+
+/* ══ HOTSPOTS ══
+   Positioned via left/top in % directly on .img-layer
+   Since .img-layer is absolute inset:0, % maps perfectly to image pixels
+══ */
+.hs {
+  position: absolute;
+  z-index: 20;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.9);
+  background: var(--blue);
+  cursor: pointer;
+  transform: translate(-50%,-50%);
+  transition: transform .15s, box-shadow .15s, opacity .3s;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 8px rgba(0,0,0,.7);
+  font-family: var(--mono); font-size: .42rem; font-weight: 500; color: #fff;
+  line-height: 1; text-align: center; user-select: none;
+  pointer-events: auto;
+}
+.hs:hover {
+  transform: translate(-50%,-50%) scale(1.28);
+  box-shadow: 0 0 0 5px rgba(0,126,198,.35), 0 3px 16px rgba(0,0,0,.6);
+  z-index: 30;
+}
+/* Small pulse ring */
+.hs::before {
+  content: ''; position: absolute; inset: -3px; border-radius: 50%;
+  border: 2px solid var(--blue); opacity: 0;
+  animation: hs-pulse 2.5s ease-out infinite;
+}
+@keyframes hs-pulse {
+  0%   { opacity:.7; transform:scale(1); }
+  100% { opacity:0;  transform:scale(2.2); }
+}
+
+/* ══ GLOBAL TOOLTIP (position:fixed — never clipped) ══ */
+#g-tip {
+  position:fixed; z-index:9999; pointer-events:none; opacity:0;
+  transition:opacity .15s; width:240px;
+  background:var(--ink); color:var(--paper);
+  border-radius:5px; padding:.72rem .9rem;
+  box-shadow:0 8px 32px rgba(0,0,0,.6);
+  font-family:var(--sans); font-size:.78rem; line-height:1.5;
+  border-left: 3px solid var(--blue);
+}
+#g-tip.visible { opacity:1; }
+#g-tip .tip-tag   { font-family:var(--mono); font-size:.54rem; opacity:.4; text-transform:uppercase; letter-spacing:.15em; margin-bottom:.1rem; }
+#g-tip .tip-title { font-family:var(--serif); font-size:.95rem; font-weight:700; color:var(--blue); margin-bottom:.25rem; }
+#g-tip .tip-desc  { font-size:.76rem; color:rgba(245,240,232,.8); line-height:1.45; }
+#g-tip::after { content:''; position:absolute; left:14px; border:6px solid transparent; }
+#g-tip.tip-above::after { top:100%; border-top-color:var(--ink); }
+#g-tip.tip-below::after { bottom:100%; border-bottom-color:var(--ink); }
+
+/* Layer legend */
+.stack-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem; margin-top:.4rem; }
+.layer-legend { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; font-family:var(--mono); font-size:.58rem; letter-spacing:.07em; color:#888; }
+.legend-item { display:flex; align-items:center; gap:.28rem; }
+.legend-dot { width:6px; height:6px; border-radius:50%; }
+.hint-note { font-family:var(--mono); font-size:.58rem; color:#aaa; letter-spacing:.05em; }
+
+/* ── QUIZ ── */
+.quiz-wrap { display:flex; flex-direction:column; gap:1rem; }
+.quiz-item { background:#fff; border:1px solid var(--rule); border-radius:4px; padding:1.4rem 1.7rem; }
+.quiz-item.error { border-color:var(--red); }
+.q-num { font-family:var(--mono); font-size:.62rem; color:var(--blue); letter-spacing:.12em; margin-bottom:.35rem; }
+.q-text { font-family:var(--serif); font-size:.98rem; line-height:1.55; margin-bottom:.9rem; }
+.options { display:flex; flex-direction:column; gap:.4rem; }
+.opt-label { display:flex; align-items:flex-start; gap:.65rem; cursor:pointer; padding:.5rem .75rem; border:1px solid var(--rule); border-radius:3px; transition:border-color .15s,background .15s; font-size:.87rem; line-height:1.4; }
+.opt-label:hover { border-color:var(--blue); background:var(--blue-light); }
+.opt-label input { margin-top:.14rem; accent-color:var(--blue); flex-shrink:0; }
+.submit-area { display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap; margin-top:.5rem; }
+.btn-submit { background:var(--ink); color:var(--paper); font-family:var(--sans); font-size:.88rem; font-weight:500; letter-spacing:.04em; border:none; border-radius:3px; padding:.82rem 2rem; cursor:pointer; transition:background .2s,transform .1s; }
+.btn-submit:hover { background:var(--blue); }
+.btn-submit:active { transform:scale(.97); }
+.btn-submit:disabled { opacity:.5; cursor:not-allowed; }
+.submit-note { font-size:.76rem; color:#888; max-width:340px; line-height:1.4; }
+.success-msg { display:none; background:#eafaf1; border:1px solid #6fcf97; border-radius:4px; padding:1.1rem 1.5rem; font-size:.88rem; color:#1a5c35; line-height:1.5; margin-top:.8rem; }
+.success-msg.show { display:block; }
+
+/* ── FOOTER ── */
+footer { background:var(--ink); color:rgba(245,240,232,.6); padding:2rem 2.5rem; font-size:.77rem; line-height:1.7; }
+.footer-inner { max-width:1100px; margin:0 auto; }
+.footer-top { display:flex; gap:2rem; flex-wrap:wrap; justify-content:space-between; padding-bottom:1.1rem; border-bottom:1px solid rgba(245,240,232,.1); margin-bottom:1.1rem; }
+.footer-meta strong { color:var(--paper); }
+.footer-quote { max-width:540px; font-style:italic; font-family:var(--serif); font-size:.86rem; color:rgba(245,240,232,.45); line-height:1.65; }
+.footer-quote cite { display:block; margin-top:.35rem; font-family:var(--sans); font-style:normal; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--blue); }
+.footer-analysis { background:rgba(0,126,198,.08); border-left:3px solid var(--blue); padding:.75rem 1rem; border-radius:0 3px 3px 0; font-size:.77rem; color:rgba(245,240,232,.65); max-width:700px; line-height:1.6; margin-top:1.1rem; }
+.footer-analysis strong { color:var(--blue); }
+.footer-bottom { display:flex; gap:1rem; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-top:1.1rem; }
+
+@media(max-width:640px){
+  .page-header{padding:1.6rem 1.1rem 1.3rem;}
+  main{padding:1.3rem .9rem;}
+  footer{padding:1.6rem 1.1rem;}
+  .card{padding:1.1rem .9rem;}
+  .quiz-item{padding:1.1rem .9rem;}
+  .layer-bar{padding:.45rem .6rem; gap:.28rem;}
+  .layer-btn{font-size:.52rem; padding:.24rem .45rem;}
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="header-kicker">Tipografía · 2026 · UTP · Mg Mario Quiroz</p>
+  <h1 class="header-title">Los elementos <em>básicos</em> de la letra</h1>
+  <p class="header-sub">Semana 1 · Bloque C — Vocabulario tipográfico fundamental: asta, remate, palo seco, ascendentes, descendentes, línea de base, altura de x y contrapunzón.</p>
+</header>
+
+<main>
+
+  <!-- STUDENT -->
+  <div class="card">
+    <p class="section-label">Datos del estudiante</p>
+    <h2>Identificación</h2>
+    <div class="field-row">
+      <div class="field" id="f-name">
+        <label for="st-name">Nombre completo *</label>
+        <input type="text" id="st-name" placeholder="Ej: Ana García López" required>
+      </div>
+      <div class="field" id="f-email">
+        <label for="st-email">Correo electrónico *</label>
+        <input type="email" id="st-email" placeholder="tu@correo.com" required>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE SECTION -->
+  <div class="stack-outer">
+    <p class="section-label">Análisis visual · Capas tipográficas superpuestas</p>
+
+    <!-- STICKY CONTROL BAR -->
+    <div class="layer-bar">
+      <span class="layer-bar-label">Capas</span>
+      <button class="layer-btn" data-layer="0" type="button"><span class="dot"></span>Im. 1</button>
+      <button class="layer-btn" data-layer="1" type="button"><span class="dot"></span>Im. 2</button>
+      <button class="layer-btn" data-layer="2" type="button"><span class="dot"></span>Im. 3 — Glifos</button>
+      <button class="layer-btn" data-layer="3" type="button"><span class="dot"></span>Im. 4</button>
+      <button class="layer-btn" data-layer="4" type="button"><span class="dot"></span>Im. 5 — Ritmo</button>
+      <div class="bar-actions">
+        <button class="bar-btn" id="btn-show-all"  type="button">Mostrar todo</button>
+        <button class="bar-btn" id="btn-blur-all"  type="button">Desenfocar todo</button>
+        <button class="bar-btn" id="btn-hide-all"  type="button">Ocultar todo</button>
+      </div>
+    </div>
+
+    <!-- SUPERIMPOSED STACK — all 5 images occupy the same space -->
+    <div class="img-stack" id="img-stack">
+
+      <div class="img-layer" id="layer-0">
+        <img src="Mesa_de_trabajo_11.png" alt="Imagen 1">
+      </div>
+
+      <div class="img-layer" id="layer-1">
+        <img src="Mesa_de_trabajo_12.png" alt="Imagen 2">
+      </div>
+
+      <!-- Layer 2 — Mesa_de_trabajo_13: Glifos con elementos cyan identificados
+           Content spans X: 5%–71%, Y: 27%–75%
+           7 cyan clusters mapped to typographic terms -->
+      <div class="img-layer" id="layer-2">
+        <img src="Mesa_de_trabajo_13.png" alt="Imagen 3 — Glifos">
+      </div>
+
+      <div class="img-layer" id="layer-3">
+        <img src="Mesa_de_trabajo_14.png" alt="Imagen 4">
+      </div>
+
+      <!-- Layer 4 — Mesa_de_trabajo_15: 3 vertical bars (cyan)
+           X: 79%–87%, varying heights -->
+      <div class="img-layer" id="layer-4">
+        <img src="Mesa_de_trabajo_15.png" alt="Imagen 5 — Ritmo">
+      </div>
+
+    </div><!-- /img-stack -->
+
+    <div class="stack-footer">
+      <div class="layer-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>Visible</span>
+        <span class="legend-item"><span class="legend-dot" style="background:var(--red)"></span>Oculta</span>
+        <span class="legend-item"><span class="legend-dot" style="background:rgba(0,126,198,.35)"></span>Desenfocada</span>
+        <span style="color:#bbb">· Clic en botón: visible → oculta → desenfocada</span>
+      </div>
+      <p class="hint-note">● Pasa el cursor sobre los puntos para leer cada concepto</p>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <form id="quiz-form" novalidate>
+    <p class="section-label">Cuestionario</p>
+    <div class="quiz-wrap">
+
+      <div class="quiz-item" id="q1">
+        <p class="q-num">Pregunta 01 · Selección única</p>
+        <p class="q-text">¿Cuál de los siguientes elementos tipográficos define la altura estándar de las letras minúsculas (sin ascendentes ni descendentes)?</p>
+        <div class="options">
+          <label class="opt-label"><input type="radio" name="q1" value="a"> Línea de base (<em>baseline</em>)</label>
+          <label class="opt-label"><input type="radio" name="q1" value="b"> Altura de x (<em>x-height</em>)</label>
+          <label class="opt-label"><input type="radio" name="q1" value="c"> Línea de ascendentes</label>
+          <label class="opt-label"><input type="radio" name="q1" value="d"> Cap height</label>
+        </div>
+      </div>
+
+      <div class="quiz-item" id="q2">
+        <p class="q-num">Pregunta 02 · Selección múltiple</p>
+        <p class="q-text">¿Cuáles de las siguientes letras poseen descendentes?</p>
+        <div class="options">
+          <label class="opt-label"><input type="checkbox" name="q2" value="g"> g</label>
+          <label class="opt-label"><input type="checkbox" name="q2" value="p"> p</label>
+          <label class="opt-label"><input type="checkbox" name="q2" value="A"> A</label>
+          <label class="opt-label"><input type="checkbox" name="q2" value="y"> y</label>
+          <label class="opt-label"><input type="checkbox" name="q2" value="q"> q</label>
+          <label class="opt-label"><input type="checkbox" name="q2" value="T"> T</label>
+        </div>
+      </div>
+
+      <div class="quiz-item" id="q3">
+        <p class="q-num">Pregunta 03 · Selección única</p>
+        <p class="q-text">El <strong>remate</strong> (serif) remata los extremos de los trazos. ¿Qué clasificación <em>no posee</em> serifs?</p>
+        <div class="options">
+          <label class="opt-label"><input type="radio" name="q3" value="a"> Romana antigua</label>
+          <label class="opt-label"><input type="radio" name="q3" value="b"> Palo seco (sans-serif)</label>
+          <label class="opt-label"><input type="radio" name="q3" value="c"> Egipcia (slab serif)</label>
+          <label class="opt-label"><input type="radio" name="q3" value="d"> Transicional</label>
+        </div>
+      </div>
+
+      <div class="quiz-item" id="q4">
+        <p class="q-num">Pregunta 04 · Respuesta abierta</p>
+        <p class="q-text">Observa las imágenes e identifica al menos <strong>tres elementos anatómicos</strong> de la letra visibles en las capas. Descríbelos brevemente.</p>
+        <div class="field">
+          <textarea id="q4-ans" name="q4" placeholder="Escribe tu respuesta aquí…" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="quiz-item" id="q5">
+        <p class="q-num">Pregunta 05 · Análisis crítico</p>
+        <p class="q-text">¿Por qué importa que el espacio interior de una letra — el <strong>contrapunzón</strong> — sea parte de su diseño, y no solo los trazos negros? Argumenta con ejemplos.</p>
+        <div class="field">
+          <textarea id="q5-ans" name="q5" placeholder="Desarrolla tu argumento tipográfico…" rows="6"></textarea>
+        </div>
+      </div>
+
+      <div class="quiz-item" id="q6">
+        <p class="q-num">Pregunta 06 · Selección única</p>
+        <p class="q-text">Según Kane, conocer las partes de la letra facilita:</p>
+        <div class="options">
+          <label class="opt-label"><input type="radio" name="q6" value="a"> Diseñar logotipos más rápido</label>
+          <label class="opt-label"><input type="radio" name="q6" value="b"> Identificar cada tipo con mayor precisión</label>
+          <label class="opt-label"><input type="radio" name="q6" value="c"> Memorizar fuentes sin necesidad de práctica</label>
+          <label class="opt-label"><input type="radio" name="q6" value="d"> Evitar el uso de serifs</label>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <button type="submit" class="btn-submit">Enviar respuestas →</button>
+        <p class="submit-note">Tu respuesta se enviará a tu correo y a c12139@utp.edu.pe.</p>
+      </div>
+      <div class="success-msg" id="success-msg">✓ Formulario enviado. Revisa tu bandeja de entrada.</div>
+    </div>
+  </form>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-meta">
+        <p><strong>Docente:</strong> Mg Mario Quiroz</p>
+        <p><strong>Curso:</strong> Tipografía · 2026</p>
+        <p><strong>Semana 1 · Bloque C</strong> — Los elementos básicos de la letra</p>
+        <p style="margin-top:.45rem;font-size:.7rem;">Introducción al vocabulario tipográfico fundamental: asta, remate (serif), palo seco (sans serif), ascendentes, descendentes, línea de base, altura de x, contrapunzón.</p>
+      </div>
+      <blockquote class="footer-quote">
+        "Al igual que cualquier otro oficio que haya evolucionado durante quinientos años, la tipografía utiliza cierto número de términos técnicos [...] Si se conocen las partes que componen una letra, es mucho más fácil identificar cada uno de los tipos."
+        <cite>— John Kane, <em>Manual de Tipografía</em></cite>
+      </blockquote>
+    </div>
+    <div class="footer-analysis">
+      <strong>Pregunta de análisis:</strong> ¿Por qué importa que el espacio interior de una letra (contrapunzón) sea parte de su diseño, y no solo los trazos negros?
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Universidad Tecnológica del Perú · UTP</span>
+      <span style="font-family:var(--mono);font-size:.62rem;color:var(--blue);">TIPOGRAFÍA · S01 · BLOQUE C</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// GLOBAL TOOLTIP — position:fixed, never clipped
+// ══════════════════════════════════════════════════════════
+const tip = document.createElement('div');
+tip.id = 'g-tip';
+tip.innerHTML = '<div class="tip-tag"></div><div class="tip-title"></div><div class="tip-desc"></div>';
+document.body.appendChild(tip);
+
+function showTip(hs) {
+  tip.querySelector('.tip-tag').textContent   = hs.dataset.tag   || '';
+  tip.querySelector('.tip-title').textContent = hs.dataset.title || '';
+  tip.querySelector('.tip-desc').textContent  = hs.dataset.desc  || '';
+  tip.classList.remove('tip-above','tip-below');
+  tip.classList.add('visible');
+
+  const r   = hs.getBoundingClientRect();
+  const tw  = 240;
+  const th  = tip.offsetHeight || 110;
+  const gap = 12;
+  const vw  = window.innerWidth, vh = window.innerHeight;
+
+  let top;
+  if (r.top - th - gap >= 8) { top = r.top - th - gap; tip.classList.add('tip-above'); }
+  else                        { top = r.bottom + gap;   tip.classList.add('tip-below'); }
+  let left = r.left + r.width/2 - tw/2;
+  left = Math.max(8, Math.min(left, vw - tw - 8));
+  top  = Math.max(8, Math.min(top,  vh - th - 8));
+  tip.style.left  = left + 'px';
+  tip.style.top   = top  + 'px';
+  tip.style.width = tw   + 'px';
+}
+function hideTip() { tip.classList.remove('visible','tip-above','tip-below'); }
+
+// ══════════════════════════════════════════════════════════
+// HOTSPOT DEFINITIONS
+//
+// Coordinates are % of image dimensions (990×265).
+// Mapped precisely from pixel analysis:
+//
+// IMAGE 3 (Mesa_de_trabajo_13) — Glifos en cyan/azul:
+//   7 cyan clusters detected:
+//   C1: X 5%–16%  center(10.4%, 45.7%) → Ampersand glyph body
+//   C2: X 21%–25% center(23.3%, 50.9%) → punto/lágrima de la j
+//   C3: X 30%–34% center(32.2%, 51.3%) → barra/travesaño
+//   C4: X 42%–46% center(43.8%, 38.1%) → remate superior glifo 7
+//   C5: X 56%–60% center(58.2%, 50.9%) → minúscula interior
+//   C6: X 64%–67% center(65.7%, 35.5%) → apex / remate superior
+//   C7: X 69%–71% center(70.3%, 61.9%) → remate/gracia inferior
+//
+// IMAGE 5 (Mesa_de_trabajo_15) — 3 barras verticales cyan:
+//   Bar1: center(80.3%, 51.9%) short  → Altura de la x
+//   Bar2: center(83.3%, 45.3%) medium → Altura del cuerpo
+//   Bar3: center(86.4%, 48.3%) tall   → Ascendente / full height
+//
+// Lines (horizontal) — mapped to standard typographic positions
+// within the image vertical space (27%–75% content area):
+//   Línea base:        Y ≈ 68% of image height
+//   Línea media (xH):  Y ≈ 45%
+//   Línea de mayúsc:   Y ≈ 30%
+//   Línea ascendentes: Y ≈ 18%
+//   Línea descendentes:Y ≈ 80%
+// ══════════════════════════════════════════════════════════
+
+const HOTSPOTS = [
+
+  // ── IMAGE 3 (layer 2) — Glifos con partes marcadas en cyan ──────────
+
+  // Cluster 1 (X:5%–16%, center 10.4%, 45.7%) — Ampersand (&)
+  // The & glyph is the leftmost large element; center of its body
+  {
+    layer: 2, x: 10.4, y: 46,
+    tag: '&',
+    title: 'Ampersand',
+    desc: 'Ligadura histórica de "et" (latín). Carácter que combina E y t en una sola forma. Ejemplo de glifo con brazo, arco y apertura complejos.'
+  },
+  // Apertura del Ampersand — la apertura interna de su forma curva
+  {
+    layer: 2, x: 8.5, y: 35,
+    tag: 'Ap',
+    title: 'Apertura',
+    desc: 'Espacio de entrada abierta en letras como C, G, S o en el Ampersand. Define la accesibilidad visual de la forma y su legibilidad a distancia.'
+  },
+  // Arco del Ampersand
+  {
+    layer: 2, x: 13, y: 56,
+    tag: 'Af',
+    title: 'Arco de fuste',
+    desc: 'Trazo curvo que nace del asta principal. En el Ampersand forma la parte inferior curva característica de su estructura caligráfica.'
+  },
+
+  // Cluster 2 (X:21%–25%, center 23.3%, 50.9%) — n con punto/lágrima
+  // This is the 'n' or similar letter; the cyan marks a teardrop terminal
+  {
+    layer: 2, x: 22, y: 36,
+    tag: 'Pt',
+    title: 'Punto / Lágrima',
+    desc: 'Terminal en forma de gota que remata algunos trazos curvos, como los de la letra "f" o "a". Característica de tipografías con influencia caligráfica.'
+  },
+  // Brazo de la n
+  {
+    layer: 2, x: 23.3, y: 52,
+    tag: 'Br',
+    title: 'Brazo',
+    desc: 'Trazo horizontal o diagonal que se proyecta libremente desde el asta. Visible en letras como E, F, L, T y en la curva superior de la n.'
+  },
+
+  // Cluster 3 (X:30%–34%, center 32.2%, 51.3%) — j con descendente y barra
+  {
+    layer: 2, x: 32.2, y: 44,
+    tag: 'Bv',
+    title: 'Barra / Travesaño',
+    desc: 'Trazo horizontal que cruza el asta vertical. Presente en letras como A, H, f, t. También llamado "crossbar" o travesaño. Distingue formas similares (I vs H).'
+  },
+  // La j tiene descendente
+  {
+    layer: 2, x: 31, y: 70,
+    tag: 'Des',
+    title: 'Línea de descendentes',
+    desc: 'Línea imaginaria que marca el límite inferior de los trazos descendentes (g, j, p, q, y). Define el espacio bajo la línea de base usado por estas letras.'
+  },
+
+  // Cluster 4 (X:42%–46%, center 43.8%, 38.1%) — glifo con apex (7 o A)
+  {
+    layer: 2, x: 43.8, y: 30,
+    tag: 'Ax',
+    title: 'Apex',
+    desc: 'Punto superior donde se unen dos trazos diagonales, como en la A. Puede ser agudo, plano, redondeado o con remate según la familia tipográfica.'
+  },
+  // Remate/Gracia en parte superior
+  {
+    layer: 2, x: 46, y: 43,
+    tag: 'Rm',
+    title: 'Remate / Gracia',
+    desc: 'Pequeño trazo terminal (serif) que remata los extremos del asta. Herencia del cincel romano. Mejora el flujo de lectura horizontal al guiar el ojo.'
+  },
+
+  // Cluster 5 (X:56%–60%, center 58.2%, 50.9%) — minúscula central
+  {
+    layer: 2, x: 58.2, y: 51,
+    tag: 'Mn',
+    title: 'Minúsculas',
+    desc: 'Letras de caja baja, con altura definida por la x-height. Poseen ascendentes (b, d, h) y descendentes (g, p, y). Su diseño equilibra legibilidad y economía de espacio.'
+  },
+  // Línea media visible en este glifo
+  {
+    layer: 2, x: 57, y: 42,
+    tag: 'Lm',
+    title: 'Línea media',
+    desc: 'Línea imaginaria que delimita la parte superior de las minúsculas sin ascendentes. Coincide con la cima de la letra "x". También llamada línea de x-height.'
+  },
+
+  // Cluster 6 (X:64%–67%, center 65.7%, 35.5%) — elemento superior con remate
+  {
+    layer: 2, x: 65.7, y: 32,
+    tag: 'LM',
+    title: 'Línea de mayúsculas',
+    desc: 'Línea imaginaria que señala la parte superior de las letras mayúsculas (cap height). Generalmente más alta que la línea de ascendentes de las minúsculas.'
+  },
+  {
+    layer: 2, x: 64.5, y: 48,
+    tag: 'AM',
+    title: 'Altura de las mayúsculas',
+    desc: 'Distancia vertical desde la línea de base hasta la cima de las letras mayúsculas. Determina el "cap height". Suele ser algo menor que la altura de los ascendentes.'
+  },
+
+  // Cluster 7 (X:69%–71%, center 70.3%, 61.9%) — remate inferior / serif
+  {
+    layer: 2, x: 70.3, y: 62,
+    tag: 'Gr',
+    title: 'Gracia / Serif inferior',
+    desc: 'Remate ubicado en la base de los trazos verticales. En las tipografías romanas estos pies horizontales facilitan el seguimiento visual de la línea de texto.'
+  },
+
+  // ── Líneas tipográficas — distribuidas en la zona de contenido ──────
+  // Content Y: 27%–75% of image height
+  // Standard typographic line positions within that range:
+
+  // Línea de ascendentes — muy cerca de la parte superior del contenido
+  {
+    layer: 2, x: 50, y: 19,
+    tag: 'La',
+    title: 'Línea de ascendentes',
+    desc: 'Línea imaginaria que marca el límite superior de los trazos ascendentes de las minúsculas (b, d, f, h, k, l). Suele estar por encima de la línea de mayúsculas.'
+  },
+  // Ascendente propiamente dicho
+  {
+    layer: 2, x: 33, y: 26,
+    tag: 'Asc',
+    title: 'Ascendente',
+    desc: 'Parte del trazo de una minúscula que sube por encima de la línea media (x-height). Las letras b, d, f, h, k, l, t poseen ascendentes. Aportan ritmo vertical al texto.'
+  },
+  // Línea de ascensión
+  {
+    layer: 2, x: 68, y: 22,
+    tag: 'Las',
+    title: 'Línea de ascensión',
+    desc: 'Línea superior del área de escritura que delimita el espacio máximo disponible para los ascendentes. Marca el tope del cuerpo tipográfico.'
+  },
+
+  // Línea de mayúsculas (cap line) — ligeramente por debajo de ascendentes
+  {
+    layer: 2, x: 18, y: 30,
+    tag: 'LC',
+    title: 'Línea de mayúsculas',
+    desc: 'Límite superior de las letras mayúsculas. El cap height es la distancia desde la línea de base hasta esta línea. Variable según la familia tipográfica.'
+  },
+
+  // Línea media / x-height — mitad del área de contenido
+  {
+    layer: 2, x: 75, y: 45,
+    tag: 'Ax',
+    title: 'Altura de la x',
+    desc: 'Distancia desde la línea de base hasta la cima de las letras minúsculas sin ascendentes (a, c, e, m, n, o, s, u, v, w, x, z). Valor crítico para la legibilidad.'
+  },
+
+  // Altura del cuerpo — toda la zona de contenido
+  {
+    layer: 2, x: 80, y: 52,
+    tag: 'Ac',
+    title: 'Altura del cuerpo',
+    desc: 'Altura total del cuerpo tipográfico, desde la línea de descendentes hasta la línea de ascendentes. En tipografía digital equivale al "em square" o cuadratín.'
+  },
+
+  // Línea base — base del contenido (~68% del alto de imagen)
+  {
+    layer: 2, x: 40, y: 68,
+    tag: 'BL',
+    title: 'Línea base',
+    desc: 'La línea imaginaria sobre la que "descansan" las letras mayúsculas y la mayoría de minúsculas. Es el eje fundamental de alineación en cualquier composición tipográfica.'
+  },
+
+  // Línea de descenso — por debajo de la línea base
+  {
+    layer: 2, x: 60, y: 76,
+    tag: 'Ld',
+    title: 'Línea de descenso',
+    desc: 'Línea que delimita el punto más bajo al que pueden llegar los trazos. Define el espacio de descenso del tipo. Junto a la línea de ascensión, determina el cuerpo total.'
+  },
+
+  // Línea de descendentes
+  {
+    layer: 2, x: 20, y: 81,
+    tag: 'LD',
+    title: 'Línea de descendentes',
+    desc: 'Línea imaginaria que marca el límite inferior de los descendentes de las minúsculas (g, j, p, q, y). Equivale al "descender line" en nomenclatura anglosajona.'
+  },
+
+  // ── IMAGE 5 (layer 4) — 3 barras verticales cyan ────────────────────
+  // Barra izquierda (80.3%, 19%–64%) — altura corta → x-height reference
+  {
+    layer: 4, x: 80.3, y: 40,
+    tag: 'xH',
+    title: 'Altura de la x',
+    desc: 'Barra que representa la altura de las minúsculas sin ascendentes ni descendentes. Referencia fundamental para la legibilidad: a mayor x-height, más legible en texto pequeño.'
+  },
+  // Barra central (83.3%, 20%–70%) — altura media → altura del cuerpo
+  {
+    layer: 4, x: 83.3, y: 35,
+    tag: 'Ac',
+    title: 'Altura del cuerpo',
+    desc: 'Barra que representa la altura total del bloque tipográfico, incluyendo el espacio para ascendentes. Define el tamaño aparente del tipo en una composición.'
+  },
+  // Barra derecha (86.4%, 7%–83%) — barra más alta → ascendente completo
+  {
+    layer: 4, x: 86.4, y: 28,
+    tag: 'Asc',
+    title: 'Ascendente',
+    desc: 'La barra más alta representa la proporción del trazo ascendente respecto al cuerpo de la letra. Tipografías con ascendentes largos transmiten elegancia y claridad.'
+  },
+
+];
+
+// ══════════════════════════════════════════════════════════
+// RENDER HOTSPOTS
+// Since .img-layer has position:absolute inset:0,
+// left/top percentages map directly to image pixel percentages
+// ══════════════════════════════════════════════════════════
+let rendered = false;
+
+function renderHotspots() {
+  if (rendered) return;
+  const stack = document.getElementById('img-stack');
+  if (!stack || stack.offsetWidth === 0) { setTimeout(renderHotspots, 100); return; }
+  rendered = true;
+
+  HOTSPOTS.forEach(h => {
+    const layerEl = document.getElementById('layer-' + h.layer);
+    if (!layerEl) return;
+
+    const dot = document.createElement('div');
+    dot.className     = 'hs';
+    dot.dataset.tag   = h.tag;
+    dot.dataset.title = h.title;
+    dot.dataset.desc  = h.desc;
+    // Percentage positioning — directly maps to image area
+    dot.style.left    = h.x + '%';
+    dot.style.top     = h.y + '%';
+    dot.textContent   = h.tag.length <= 3 ? h.tag : h.tag[0];
+
+    layerEl.appendChild(dot);
+    dot.addEventListener('mouseenter', () => showTip(dot));
+    dot.addEventListener('mouseleave', hideTip);
+  });
+}
+
+window.addEventListener('load', renderHotspots);
+setTimeout(renderHotspots, 200);
+
+// ══════════════════════════════════════════════════════════
+// LAYER STATE MACHINE  0=visible 1=hidden 2=blurred
+// ══════════════════════════════════════════════════════════
+const states = [0, 0, 0, 0, 0];
+
+function applyState(idx, s) {
+  states[idx] = s;
+  const layer = document.getElementById('layer-' + idx);
+  const btn   = document.querySelector(`.layer-btn[data-layer="${idx}"]`);
+  if (!layer || !btn) return;
+  layer.classList.remove('st-hidden','st-blurred');
+  btn.classList.remove('st-hidden','st-blurred');
+  if (s === 1) { layer.classList.add('st-hidden');  btn.classList.add('st-hidden'); }
+  if (s === 2) { layer.classList.add('st-blurred'); btn.classList.add('st-blurred'); }
+}
+
+document.querySelectorAll('.layer-btn[data-layer]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = parseInt(btn.dataset.layer);
+    applyState(idx, (states[idx] + 1) % 3);
+  });
+});
+
+document.getElementById('btn-show-all').addEventListener('click',  () => [0,1,2,3,4].forEach(i => applyState(i,0)));
+document.getElementById('btn-blur-all').addEventListener('click',  () => [0,1,2,3,4].forEach(i => applyState(i,2)));
+document.getElementById('btn-hide-all').addEventListener('click',  () => [0,1,2,3,4].forEach(i => applyState(i,1)));
+
+// ══════════════════════════════════════════════════════════
+// FORM VALIDATION & SUBMIT
+// ══════════════════════════════════════════════════════════
+document.getElementById('quiz-form').addEventListener('submit', e => {
+  e.preventDefault();
+  let valid = true;
+  document.querySelectorAll('.quiz-item.error,.field.error').forEach(el => el.classList.remove('error'));
+  document.querySelectorAll('.err-msg').forEach(el => el.remove());
+
+  const name  = document.getElementById('st-name').value.trim();
+  const email = document.getElementById('st-email').value.trim();
+
+  function fieldErr(id, msg) {
+    const el = document.getElementById(id), wrap = el.closest('.field');
+    wrap.classList.add('error');
+    const em = document.createElement('span');
+    em.className='err-msg'; em.textContent=msg;
+    wrap.appendChild(em); valid=false;
+  }
+
+  if (!name)  fieldErr('st-name',  'El nombre es obligatorio.');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fieldErr('st-email','Correo inválido.');
+
+  ['q1','q3','q6'].forEach(n => {
+    if (!document.querySelector(`input[name="${n}"]:checked`)) { document.getElementById(n).classList.add('error'); valid=false; }
+  });
+  if (!document.querySelector('input[name="q2"]:checked')) { document.getElementById('q2').classList.add('error'); valid=false; }
+  if (!document.getElementById('q4-ans').value.trim()) { document.getElementById('q4').classList.add('error'); valid=false; }
+  if (!document.getElementById('q5-ans').value.trim()) { document.getElementById('q5').classList.add('error'); valid=false; }
+
+  if (!valid) { document.querySelector('.error')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+
+  const q1=document.querySelector('input[name="q1"]:checked').value;
+  const q2=[...document.querySelectorAll('input[name="q2"]:checked')].map(i=>i.value).join(', ');
+  const q3=document.querySelector('input[name="q3"]:checked').value;
+  const q4=document.getElementById('q4-ans').value.trim();
+  const q5=document.getElementById('q5-ans').value.trim();
+  const q6=document.querySelector('input[name="q6"]:checked').value;
+
+  const subj=encodeURIComponent(`Tipografía S01·Bloque C — ${name}`);
+  const body=encodeURIComponent(`TIPOGRAFÍA S01 BLOQUE C\nEstudiante: ${name}\nCorreo: ${email}\n\nP1: ${q1}\nP2: ${q2}\nP3: ${q3}\nP4:\n${q4}\n\nP5:\n${q5}\n\nP6: ${q6}`);
+  window.location.href=`mailto:${encodeURIComponent(email+',c12139@utp.edu.pe')}?subject=${subj}&body=${body}`;
+
+  document.getElementById('success-msg').classList.add('show');
+  const sb=document.querySelector('.btn-submit');
+  sb.textContent='✓ Enviado'; sb.disabled=true;
+});
+</script>
+</body>
+</html>
